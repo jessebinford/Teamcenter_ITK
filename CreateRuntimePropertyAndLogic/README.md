@@ -4,7 +4,7 @@ This example will show how to make a runtime property and the logic behind it.
 
 This was based on how to pull linked PR's for all ItemRevision objects and generated a property with the values.
 
-**This has been built and tested on TC 13.2 and 13.3**
+**This has been built and tested on TC 13.2 and 13.3.**
 
 <h1>Set Release Version</h1>
 
