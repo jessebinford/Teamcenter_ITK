@@ -55,3 +55,66 @@ Now your 'Property Operations' should show you the new getter we just added.
 **Perform Save**
 
 <h1>Generate Code Files</h1>
+
+Right-click the template project -> Generate Code -> C++ Classes
+
+![image](https://user-images.githubusercontent.com/12979360/153771626-fa068c33-c099-43c5-b994-acdf26deab47.png)
+
+Now you should see your boiler plate code files generated in the Project Files -> Generated Source folder
+
+![image](https://user-images.githubusercontent.com/12979360/153771697-6cf2cdd9-8537-4ebd-aca6-224a3250498a.png)
+
+You should also see the ImplExt files in your Src -> Server -> _CustomExtensions folder
+
+![image](https://user-images.githubusercontent.com/12979360/153771792-48bddd18-c734-4f2c-8d5f-7b53f406415b.png)
+
+<h1>Modify code file</h1>
+
+Edit the ItemRevisionImplExt.cxx file in your src -> server -> customextensions folder
+
+Add additional includes at the top
+
+    #include <tccore/grm.h>
+    #include <tccore/tctype.h>
+
+Adjust the function
+
+    int  ::zy1_::zy1prod::ItemRevisionImpl::getZy1_AuthoringPRBase( std::vector< tag_t > & /*values*/, std::vector< int > & /*isNull*/ ) const
+    
+To the following:
+
+	int  ::zy1_::zy1prod::ItemRevisionImpl::getZy1_AuthoringPRBase( std::vector<tag_t> &values, std::vector<int> &isNull ) const
+	{
+		int ifail = ITK_ok;
+
+		tag_t tRevObj = ItemRevisionGenImpl::getItemRevision()->getTag();
+		if (tRevObj != NULL_TAG)
+		{
+			tag_t tRelationTypeTag = NULLTAG,
+					*secondaryObjectTags = NULL;
+			int n_totalRelations = 0;
+			GRM_find_relation_type("CMHasProblemItem", &tRelationTypeTag);
+			GRM_list_primary_objects_only(tRevObj, tRelationTypeTag, &n_totalRelations, &secondaryObjectTags);
+			if (n_totalRelations > 0)
+			{
+				for(int cidx = 0; cidx < n_totalRelations; cidx++)
+				{
+					tag_t tObjectType = NULL_TAG;
+					logical hasCorrectType = false;
+					TCTYPE_ask_object_type(secondaryObjectTags[cidx], &tObjectType);
+					TCTYPE_is_type_of_as_str(tObjectType, "GnProblemReportRevision", &hasCorrectType);
+					if (hasCorrectType)
+					{
+						values.push_back(secondaryObjectTags[cidx]);
+						isNull.push_back(false);
+					}
+				}
+			}
+			MEM_free(secondaryObjectTags);
+		}
+		return ifail;
+	}
+  
+Now perform a clean -> generate -> build
+
+Once you are good to go, perform your deployment
